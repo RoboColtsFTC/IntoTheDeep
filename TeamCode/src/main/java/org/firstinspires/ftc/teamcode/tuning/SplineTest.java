@@ -6,7 +6,6 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.TankDrive;
 
 public final class SplineTest extends LinearOpMode {
     @Override
@@ -17,27 +16,18 @@ public final class SplineTest extends LinearOpMode {
 
         waitForStart();
 
+        /* -------------------------------------------------------------------------------------- */
 
-        beginPose = new Pose2d(-50.76, -32.01, Math.toRadians(270.00));
+
+        beginPose = new Pose2d(-36.04, -68.65, Math.toRadians(128.66));
         drive.setPose(beginPose);
         Actions.runBlocking(drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(-46.80, -50.61), Math.toRadians(-14.93))
-                .strafeToLinearHeading(new Vector2d(4.91, -56.18), Math.toRadians(-12.12))
-                .strafeToLinearHeading(new Vector2d(46.07, -61.45), Math.toRadians(-5.97))
-                .strafeToLinearHeading(new Vector2d(62.19, -61.45), Math.toRadians(49.09))
-                .strafeToLinearHeading(new Vector2d(68.04, -55.59), Math.toRadians(45.00))
+                .strafeToLinearHeading(new Vector2d(-49.14, -29.05), Math.toRadians(90.00))
+                .strafeToLinearHeading(new Vector2d(-60.50, -65.16), Math.toRadians(252.54))
+                .strafeToLinearHeading(new Vector2d(-60.06, -27.74), Math.toRadians(89.33))
+                .strafeToLinearHeading(new Vector2d(-63.41, -65.16), Math.toRadians(264.89))
+                .strafeToLinearHeading(new Vector2d(-69.38, -28.47), Math.toRadians(99.24))
                 .build());
-
-        beginPose = new Pose2d(-50.76, -32.01, Math.toRadians(270.00));
-        drive.setPose(beginPose);
-        Actions.runBlocking(drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(-46.80, -50.61), Math.toRadians(-14.93))
-                .strafeToLinearHeading(new Vector2d(4.91, -56.18), Math.toRadians(-12.12))
-                .strafeToLinearHeading(new Vector2d(46.07, -61.45), Math.toRadians(-5.97))
-                .strafeToLinearHeading(new Vector2d(62.19, -61.45), Math.toRadians(49.09))
-                .strafeToLinearHeading(new Vector2d(68.04, -55.59), Math.toRadians(45.00))
-                .build());
-
 
     }
 }
