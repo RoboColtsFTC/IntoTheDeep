@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.drivetrain;
 
 import androidx.annotation.NonNull;
 
@@ -34,17 +34,16 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
-import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
-import org.firstinspires.ftc.teamcode.messages.MecanumLocalizerInputsMessage;
-import org.firstinspires.ftc.teamcode.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.drivetrain.messages.DriveCommandMessage;
+import org.firstinspires.ftc.teamcode.drivetrain.messages.MecanumCommandMessage;
+import org.firstinspires.ftc.teamcode.drivetrain.messages.MecanumLocalizerInputsMessage;
+import org.firstinspires.ftc.teamcode.drivetrain.messages.PoseMessage;
 
 import java.lang.Math;
 import java.util.Arrays;
@@ -65,7 +64,7 @@ public final class MecanumDrive {
         // drive model parameters
         public double inPerTick = .00304;
         public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 4991.818615480628;
+        public double trackWidthTicks = 4193;
 
         // feedforward parameters (in tick units)
         public double kS = 0.8178285113455726;
@@ -260,6 +259,13 @@ public final class MecanumDrive {
         leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
         rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
         rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+    }
+
+    public void setWheelPowers(double[] powers){
+        leftFront.setPower(powers[0]);
+        leftBack.setPower(powers[1]);
+        rightBack.setPower(powers[2]);
+        rightFront.setPower(powers[3]);
     }
 
     public void setPose(Pose2d pose){
