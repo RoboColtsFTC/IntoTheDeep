@@ -43,7 +43,7 @@ public class Drivetrain {
 
     Gamepad driver;
 
-    double maxSpeed = 1.6;
+    double maxSpeed = 1;
 
     PIDController controller = new PIDController(.025,.0025,0);
 

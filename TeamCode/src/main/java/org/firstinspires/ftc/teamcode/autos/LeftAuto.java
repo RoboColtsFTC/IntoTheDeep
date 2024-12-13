@@ -22,17 +22,38 @@ public final class LeftAuto extends LinearOpMode {
 
         /* -------------------------------------------------------------------------------------- */
 
-        beginPose = new Pose2d(33.06, 60.91, Math.toRadians(0.00));
+        beginPose = new Pose2d(0, 0, Math.toRadians(0.00));
         drive.setPose(beginPose);
         Actions.runBlocking(drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(41.77, 38.61), Math.toRadians(45.00))
-                .stopAndAdd(robot.arm.autoGoToHigh())
-                .strafeToLinearHeading(new Vector2d(61, 61), Math.toRadians(45))
-                .stopAndAdd(robot.arm.intakeOn())
-                .waitSeconds(3)
-                .stopAndAdd(robot.arm.intakeOff())
+                .afterTime(0, robot.arm.autoGoToHigh())
+                .strafeToLinearHeading(new Vector2d(11, -20), Math.toRadians(45))
+                .strafeToLinearHeading(new Vector2d(28, -4), Math.toRadians(43))
+                .afterTime(0, robot.arm.intakeOut())
+                .waitSeconds(2)
+                .stopAndAdd(robot.arm.intakeIn())
+                .afterTime(1, robot.arm.autoGoToIntake1())
+                .strafeToLinearHeading(new Vector2d(0, -25), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(0, -39), Math.toRadians(0))
+                .stopAndAdd(robot.arm.autoGoToIntake2())
+                .strafeToLinearHeading(new Vector2d(7.5, -39), Math.toRadians(0))
+                .waitSeconds(1)
+                .afterTime(0, robot.arm.autoGoToHigh())
+                .waitSeconds(1.5)
+                .strafeToLinearHeading(new Vector2d(28, -4), Math.toRadians(43))
+                .stopAndAdd(robot.arm.intakeOut())
+                .waitSeconds(2)
+                .stopAndAdd(robot.arm.intakeIn())
+                .afterTime(1, robot.arm.autoGoToIntake2())
+                .strafeToLinearHeading(new Vector2d(5, -25), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(5, -40), Math.toRadians(0))
+                .strafeToLinearHeading(new Vector2d(18, -40), Math.toRadians(0))
+                .waitSeconds(1)
+                .afterTime(0, robot.arm.autoGoToHigh())
+                .waitSeconds(1.5)
+                .strafeToLinearHeading(new Vector2d(28, -4), Math.toRadians(43))
+                .stopAndAdd(robot.arm.intakeOut())
+                .waitSeconds(2)
                 .stopAndAdd(robot.arm.autoGoToHome())
-                .strafeToLinearHeading(new Vector2d(37, 16), Math.toRadians(270.00))
                 .build());
     }
 }

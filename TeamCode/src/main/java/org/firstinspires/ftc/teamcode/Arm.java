@@ -31,6 +31,8 @@ public class Arm {
 
     private CRServo intake;
 
+    private boolean climbMode = false;
+
     public Arm(LinearOpMode opMode){
         this.opMode = opMode;
 
@@ -38,23 +40,31 @@ public class Arm {
 
         rightExtension  = opMode.hardwareMap.get(DcMotor.class, "right_extension");
         rightExtension.setDirection(DcMotor.Direction.REVERSE);
-        rightExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftExtension  = opMode.hardwareMap.get(DcMotor.class, "left_extension");
         leftExtension.setDirection(DcMotor.Direction.FORWARD);
-        leftExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         arm  = opMode.hardwareMap.get(DcMotor.class, "arm");
         arm.setDirection(DcMotor.Direction.FORWARD);
-        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         intake = opMode.hardwareMap.get(CRServo.class, "intake");
+
+        if(Robot.auto){
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            leftExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            rightExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
     public void positionMotor(DcMotor motor, int target, double speed){
@@ -65,6 +75,24 @@ public class Arm {
             motor.setPower(speed);
         } else {
             motor.setPower(speed / 2);
+        }
+    }
+
+    public void pullUp(){
+        if(arm.getCurrentPosition() < 50){
+            positionMotor(arm, 45, 1);
+
+            if(arm.getCurrentPosition() > 40){
+                positionMotor(rightExtension, -75, 1);
+                positionMotor(leftExtension, -75, 1);
+            }
+        } else {
+            positionMotor(rightExtension, -75, 1);
+            positionMotor(leftExtension, -75, 1);
+
+            if(rightExtension.getCurrentPosition() > -2000){
+                positionMotor(arm, 25, .5);
+            }
         }
     }
 
@@ -109,12 +137,56 @@ public class Arm {
         positionMotor(leftExtension, -1500, 1);
     }
 
+    public Action autoGoToIntake1(){
+        return new Action(){
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if(rightExtension.getCurrentPosition() < -2000){
+                    positionMotor(arm, 1770, 1);
+                } else if(rightExtension.getCurrentPosition() < -200){
+                    positionMotor(arm, -175, 1);
+                } else {
+                    positionMotor(arm, 45, 1);
+                }
+
+                positionMotor(rightExtension, -400, 1);
+                positionMotor(leftExtension, -400, 1);
+
+                return !((rightExtension.getCurrentPosition() < -390)
+                        && (arm.getCurrentPosition() < -170));
+            }
+        };
+    }
+
+    public Action autoGoToIntake2(){
+        return new Action(){
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if(rightExtension.getCurrentPosition() < -200) {
+                    if (arm.getCurrentPosition() > -170){
+                        positionMotor(arm, -200, 1);
+                    } else {
+                       arm.setPower(0);
+                    }
+                } else {
+                    positionMotor(arm, 45, 1);
+                }
+
+                positionMotor(rightExtension, -800, 1);
+                positionMotor(leftExtension, -800, 1);
+
+                return !((rightExtension.getCurrentPosition() < -690)
+                        && (arm.getCurrentPosition() < -170));
+            }
+        };
+    }
+
     public void goToHigh(){
         positionMotor(arm, 1770, 1);
 
         if(arm.getCurrentPosition() > 1750){
-            positionMotor(rightExtension, -3050, 1);
-            positionMotor(leftExtension, -3050, 1);
+            positionMotor(rightExtension, -3100, 1);
+            positionMotor(leftExtension, -3100, 1);
         }
     }
 
@@ -129,11 +201,22 @@ public class Arm {
         };
     }
 
-    public Action intakeOn(){
+    public Action intakeOut(){
         return new Action(){
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 intake.setPower(-1);
+
+                return false;
+            }
+        };
+    }
+
+    public Action intakeIn(){
+        return new Action(){
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                intake.setPower(1);
 
                 return false;
             }
@@ -152,11 +235,11 @@ public class Arm {
     }
 
     public void goToMid(){
-        positionMotor(arm, 1660, 1);
+        positionMotor(arm, 1675, 1);
 
         if(arm.getCurrentPosition() > 1640){
-            positionMotor(rightExtension, -1400, 1);
-            positionMotor(leftExtension, -1400, 1);
+            positionMotor(rightExtension, -1300, 1);
+            positionMotor(leftExtension, -1300, 1);
         }
     }
 
@@ -164,9 +247,9 @@ public class Arm {
         positionMotor(arm, 2000, 1);
     }
 
-    public void extendClimber(){
-        positionMotor(rightExtension, -2950, 1);
-        positionMotor(leftExtension, -2950, 1);
+    public void raiseExtensionClimb(){
+        positionMotor(rightExtension, -3000, 1);
+        positionMotor(leftExtension, -3000, 1);
     }
 
     public void turnOffArm(){
@@ -180,6 +263,17 @@ public class Arm {
         arm.setPower(0);
     }
 
+    public void furtherIntake(){
+        if(rightExtension.getCurrentPosition() < -200){
+            positionMotor(arm, -110, .5);
+        } else {
+            positionMotor(arm, 45, 1);
+        }
+
+        positionMotor(rightExtension, -2100, 1);
+        positionMotor(leftExtension, -2100, 1);
+    }
+
     public void run() {
         if(operator.left_trigger > .5){
             intake.setPower(1);
@@ -189,25 +283,62 @@ public class Arm {
             intake.setPower(0);
         }
 
-        if(operator.a) { // Home
-            goToHome();
-        } else if(operator.y) { // High
-            goToHigh();
-        } else if(operator.b) { // Mid
-            goToMid();
-        } else if(operator.x) {
-            goToIntake();
-        } else if(operator.dpad_right) {
-            goToClimb();
-        } else if(operator.dpad_up) {
+        if(operator.back){
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+// 2100
+//110
+        if(!climbMode){
+            if(operator.a) { // Home
+                goToHome();
+            } else if(operator.y) { // High
+                goToHigh();
+            } else if(operator.b) { // Mid
+                goToMid();
+            } else if(operator.x) {
+                goToIntake();
+            } else if(operator.dpad_right) {
+                goToClimb();
+            } else if(operator.dpad_up) {
+                raiseExtensionClimb();
+            } else if(operator.dpad_down){
+                climbMode = true;
+            } else if(Math.abs(operator.left_stick_x) > .5 || Math.abs(operator.left_stick_y) > .5){
+              furtherIntake();
+            } else {
+                turnOffArm();
+            }
+        } else {
+            if(operator.back){
+                climbMode = false;
+            }
+
+            pullUp();
+        }
+
+        if(operator.right_bumper){
+            arm.setPower(-.25);
             rightExtension.setPower(-.25);
             leftExtension.setPower(-.25);
-        } else if (operator.dpad_down){
-            rightExtension.setPower(.25);
-            leftExtension.setPower(.25);
-        } else {
-            turnOffArm();
         }
+
+        if(operator.left_bumper){
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            leftExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            rightExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
 
 
         opMode.telemetry.addData("Right Extension: ", rightExtension.getCurrentPosition());

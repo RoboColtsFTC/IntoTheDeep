@@ -16,6 +16,14 @@ public class Climber {
     private CRServo leftJack;
     private CRServo rightJack;
 
+    private boolean climbUp = false;
+    private boolean lastClimbUp = false;
+    private boolean climbDown = false;
+    private boolean lastClimbDown = false;
+
+    private boolean upClimbing = false;
+    private boolean downClimbing = false;
+
     public Climber(LinearOpMode opMode){
         this.opMode = opMode;
         this.operator = opMode.gamepad2;
@@ -26,7 +34,47 @@ public class Climber {
     }
 
     public void run() {
-        if (operator.right_bumper) {
+
+        if(operator.dpad_right){
+            climbUp = true;
+        } else if(operator.dpad_left){
+            climbDown = true;
+        }
+
+        if(lastClimbUp != climbUp && climbUp){
+            opMode.resetRuntime();
+
+            upClimbing = true;
+        }
+
+        if(lastClimbDown != climbDown && climbDown){
+            opMode.resetRuntime();
+
+            downClimbing = true;
+        }
+
+        if(upClimbing){
+            leftJack.setPower(1);
+            rightJack.setPower(1);
+
+            if(opMode.getRuntime() > 8.4){
+                upClimbing = false;
+            }
+        } else if(downClimbing){
+            rightJack.setPower(-1);
+            leftJack.setPower(-1);
+
+            if(opMode.getRuntime() > 8.4){
+                downClimbing = false;
+            }
+        } else {
+            rightJack.setPower(0);
+            leftJack.setPower(0);
+        }
+
+
+
+/*        if (operator.right_bumper) {
             leftJack.setPower(1);
             rightJack.setPower(1);
         } else if (operator.left_bumper) {
@@ -35,6 +83,9 @@ public class Climber {
         } else {
             rightJack.setPower(0);
             leftJack.setPower(0);
-        }
+        }*/
+
+        lastClimbDown = climbDown;
+        lastClimbUp = climbUp;
     }
 }
