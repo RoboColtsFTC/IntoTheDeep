@@ -17,12 +17,12 @@ This document is a complete technical manual for the `IntoTheDeep` FTC codebase.
 
 ## 1. Project Overview
 
-This is a modular FTC robot codebase built for the `IntoTheDeep` season. The project is separated into distinct subsystems (like `Arm`, `Climber`, and two different `Drivetrain` classes) which are managed by a central `Robot.java` class.
+This is a modular FTC robot codebase built for the `IntoTheDeep` season. The project is separated into distinct subsystems (like `Arm`, `Climber`, and two different `Drivetrain` classes) which are managed by a central [`Robot.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Robot.java) class.
 
 This architecture creates two entirely separate modes of operation:
 
-1.  **Autonomous:** Uses the **Road Runner (v1.0+ Action-Based)** library for highly precise, motion-profiled autonomous routines. This mode uses the `MecanumDrive.java` class and the `ThreeDeadWheelLocalizer.java` for high-accuracy odometry.
-2.  **TeleOp:** Uses a separate, simpler `Drivetrain.java` class that leverages **FTCLib** kinematics for manual, "field-relative" driver control.
+1.  **Autonomous:** Uses the **Road Runner (v1.0+ Action-Based)** library for highly precise, motion-profiled autonomous routines. This mode uses the [`MecanumDrive.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/MecanumDrive.java) class and the [`ThreeDeadWheelLocalizer.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/ThreeDeadWheelLocalizer.java) for high-accuracy odometry.
+2.  **TeleOp:** Uses a separate, simpler [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) class that leverages **FTCLib** kinematics for manual, "field-relative" driver control.
 
 The code is managed by specific **OpModes** (e.g., `BlueTeleop`, `LeftAuto`) which act as the entry points and tell the main `Robot` class which subsystems to activate.
 
@@ -36,7 +36,7 @@ In TeleOp, the flow is a continuous loop that reads gamepad inputs and updates a
 
 1.  A driver selects `BlueTeleop` or `RedTeleop`.
 2.  This OpMode creates a single `Robot` instance with `auto = false` and all subsystems set to `true`.
-3.  The `Robot` constructor creates instances of the TeleOp **`Drivetrain.java`**, the **`Arm.java`**, and the **`Climber.java`** classes.
+3.  The `Robot` constructor creates instances of the TeleOp **[`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java)**, the **[`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java)**, and the **[`Climber.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Climber.java)** classes.
 4.  The OpMode's main `while` loop continuously calls `robot.runRobot()`.
 5.  `robot.runRobot()` then calls the individual `.run()` method for every active subsystem, processing gamepad inputs and updating motor states.
 
@@ -45,7 +45,7 @@ In TeleOp, the flow is a continuous loop that reads gamepad inputs and updates a
 Autonomous uses a sequential, action-based flow powered by Road Runner and ignores the TeleOp `Drivetrain`.
 
 1.  A driver selects `LeftAuto`.
-2.  This OpMode creates its **own** instance of Road Runner's **`MecanumDrive.java`**.
+2.  This OpMode creates its **own** instance of Road Runner's **[`MecanumDrive.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/MecanumDrive.java)**.
 3.  It also creates a `Robot` instance with `auto = true`.
 4.  Because `auto` is true, the `Robot` constructor **only initializes the `Arm`** and **skips** initializing the TeleOp `Drivetrain` and `Climber` classes.
 5.  The OpMode builds a sequential chain of drive commands (e.g., `.strafeToLinearHeading(...)`) and mechanism commands (e.g., `robot.arm.autoGoToHigh()`).
@@ -220,27 +220,25 @@ classDiagram
 
 This project assumes a two-driver setup.
 
-
-
 ### Gamepad 1: Driver Controls
 
-This gamepad is dedicated exclusively to chassis movement and is managed by `Drivetrain.java`. All driving is **Field-Relative**.
+This gamepad is dedicated exclusively to chassis movement and is managed by [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java). All driving is **Field-Relative**.
 
 | Control | Action | Source File | 
 | :--- | :--- | :--- | 
-| **Left Stick Y** | Drive Forward / Backward (relative to field) | `Drivetrain.java` | 
-| **Left Stick X** | Strafe Left / Right (relative to field) | `Drivetrain.java` | 
-| **Right Stick X** | Manually Turn (Rotate) robot Left / Right | `Drivetrain.java` | 
-| **(A) Button** | PID Snap: Turn robot to **-45 degree** heading. | `Drivetrain.java` | 
-| **(X) Button** | PID Snap: Turn robot to **+90 degree** heading. | `Drivetrain.java` | 
-| **(B) Button** | PID Snap: Turn robot to **-90 degree** heading. | `Drivetrain.java` | 
-| **Back Button** | Re-zeros the IMU heading. | `Drivetrain.java` | 
+| **Left Stick Y** | Drive Forward / Backward (relative to field) | [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) | 
+| **Left Stick X** | Strafe Left / Right (relative to field) | [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) | 
+| **Right Stick X** | Manually Turn (Rotate) robot Left / Right | [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) | 
+| **(A) Button** | PID Snap: Turn robot to **-45 degree** heading. | [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) | 
+| **(X) Button** | PID Snap: Turn robot to **+90 degree** heading. | [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) | 
+| **(B) Button** | PID Snap: Turn robot to **-90 degree** heading. | [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) | 
+| **Back Button** | Re-zeros the IMU heading. | [`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) | 
 
 <br>
 
 ### Gamepad 2: Operator Controls
 
-This gamepad controls all mechanisms via `Arm.java` and `Climber.java`.
+This gamepad controls all mechanisms via [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) and [`Climber.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Climber.java).
 
 #### Standard Mode (Default)
 
@@ -248,18 +246,18 @@ Controls available on startup.
 
 | Control | Action | Source File(s) | 
 | :--- | :--- | :--- | 
-| **Left Trigger** (>50%) | Intake In (Power: 1.0) | `Arm.java` | 
-| **Right Trigger** (>50%) | Intake Out (Power: -1.0) | `Arm.java` | 
-| **(A) Button** | Arm Preset: `goToHome()` | `Arm.java` | 
-| **(Y) Button** | Arm Preset: `goToHigh()` | `Arm.java` | 
-| **(B) Button** | Arm Preset: `goToMid()` | `Arm.java` | 
-| **(X) Button** | Arm Preset: `goToIntake()` | `Arm.java` | 
-| **Left Stick** (Any) | Arm Preset: `furtherIntake()` | `Arm.java` | 
-| **D-Pad Up** | Arm Preset: `raiseExtensionClimber()` | `Arm.java` | 
-| **D-Pad Left** | **Climber Jacks:** Starts 8.4-second "Down" sequence. | `Climber.java` | 
-| **D-Pad Right** | **(Dual Action)** <br> 1. **Arm:** Moves to `goToClimb()` position. <br> 2. **Climber Jacks:** Starts 8.4-second "Up" sequence. | `Arm.java`, `Climber.java` | 
-| **D-Pad Down** | **Enter Climb Mode** (Disables all face buttons) | `Arm.java` | 
-| **Back Button** | Reset all Arm motor encoders. | `Arm.java` | 
+| **Left Trigger** (>50%) | Intake In (Power: 1.0) | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **Right Trigger** (>50%) | Intake Out (Power: -1.0) | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **(A) Button** | Arm Preset: `goToHome()` | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **(Y) Button** | Arm Preset: `goToHigh()` | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **(B) Button** | Arm Preset: `goToMid()` | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **(X) Button** | Arm Preset: `goToIntake()` | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **Left Stick** (Any) | Arm Preset: `furtherIntake()` | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **D-Pad Up** | Arm Preset: `raiseExtensionClimber()` | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **D-Pad Left** | **Climber Jacks:** Starts 8.4-second "Down" sequence. | [`Climber.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Climber.java) | 
+| **D-Pad Right** | **(Dual Action)** <br> 1. **Arm:** Moves to `goToClimb()` position. <br> 2. **Climber Jacks:** Starts 8.4-second "Up" sequence. | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java), [`Climber.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Climber.java) | 
+| **D-Pad Down** | **Enter Climb Mode** (Disables all face buttons) | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **Back Button** | Reset all Arm motor encoders. | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
 
 #### Climb Mode
 
@@ -267,8 +265,8 @@ This mode is active *after* **D-Pad Down** is pressed. All face buttons (A, B, X
 
 | Control | Action | Source File | 
 | :--- | :--- | :--- | 
-| **Main Loop** | The arm automatically executes the `pullUp()` command. | `Arm.java` | 
-| **Back Button** | **Exit Climb Mode** (Returns controls to Standard Mode) | `Arm.java` | 
+| **Main Loop** | The arm automatically executes the `pullUp()` command. | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
+| **Back Button** | **Exit Climb Mode** (Returns controls to Standard Mode) | [`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java) | 
 
 ## 6. Autonomous & Pathing (Road Runner Guide)
 
@@ -280,7 +278,7 @@ This workflow explains how to use the project's tools to build a new auto routin
 
 #### Step 1: Generate Path with GUI Tool
 
-Your project includes `RRPathGen-v1.8.1-alpha.jar`, a graphical tool for creating paths.
+Your project includes [`RRPathGen-v1.8.1-alpha.jar`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/RRPathGen-v1.8.1-alpha.jar), a graphical tool for creating paths.
 
 1.  **Run the Tool:** Execute this `.jar` file on your computer (requires Java). You can typically run it from a terminal with: `java -jar RRPathGen-v1.8.1-alpha.jar`.
 2.  **Design Path:** The GUI will open, displaying the FTC field. Use your mouse to design a path:
@@ -289,7 +287,7 @@ Your project includes `RRPathGen-v1.8.1-alpha.jar`, a graphical tool for creatin
     * **Alt + Left Click:** Change the robot's heading (angle) at that point.
     * **Shift + Alt + Left Click:** Change the path's departure tangent.
 3.  **Export Code:** When your path looks correct, click the **"Export" button**. This copies the literal Java code needed to build that path.
-4.  **Get Coordinates:** Alternatively, you can just use the GUI to find the exact coordinates and headings you want to use, and then manually type them into your OpMode. This is the method used by `LeftAuto.java`.
+4.  **Get Coordinates:** Alternatively, you can just use the GUI to find the exact coordinates and headings you want to use, and then manually type them into your OpMode. This is the method used by [`LeftAuto.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/LeftAuto.java).
 
 #### Step 2: Simulate the Path (Optional but Recommended)
 
@@ -298,8 +296,8 @@ Your project has a `MeepMeepTesting` module. You can copy your path coordinates 
 #### Step 3: Create the New Autonomous OpMode
 
 1.  Navigate to the `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos` directory.
-2.  Create a new Java class (e.g., `MyNewAuto.java`).
-3.  Use `LeftAuto.java` as a template. Your class must:
+2.  Create a new Java class (e.g., [`MyNewAuto.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/LeftAuto.java)).
+3.  Use [`LeftAuto.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/LeftAuto.java) as a template. Your class must:
     * Have the `@Autonomous` annotation.
     * Extend `LinearOpMode`.
     * Initialize `MecanumDrive drive` and `Robot robot` (passing `true` for auto mode).
@@ -362,7 +360,7 @@ This is a breakdown of the key files in your project and their specific purpose.
 
 ### Core Robot Architecture
 
-* **`Robot.java`**
+* **[`Robot.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Robot.java)**
     * **Purpose:** The central robot class. It acts as a conditional initializer and a dispatcher. During initialization, it checks if the robot is in `auto` or `TeleOp` mode and only creates the objects needed for that mode. In the main TeleOp loop, it dispatches the `.run()` command to each active subsystem, ensuring all components are updated in a consistent order on every cycle.
     * **Constructor Logic:**
         ```mermaid
@@ -376,39 +374,46 @@ This is a breakdown of the key files in your project and their specific purpose.
             F --> G;
         ```
 
-* **`Arm.java`**
+* **[`Arm.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java)**
     * **Purpose:** Manages the multi-motor arm, extension slides, and intake servo. Its core logic is a state machine controlled by the operator's gamepad. Instead of direct motor control, button presses transition the arm between predefined, encoder-based positions. This ensures repeatable movements. For autonomous, it provides special `Action` methods that wrap these state transitions, making them compatible with Road Runner's sequential command system.
     * **TeleOp State Machine Logic:**
         ```mermaid
         stateDiagram-v2
-            [*] --> Home
-            Home --> High: Y Button
-            Home --> Mid: B Button
-            Home --> Intake: X Button
+            direction LR
+            [*] --> Home_Position
             
-            High --> Home: A Button
-            Mid --> Home: A Button
-            Intake --> Home: A Button
+            Home_Position: Home Position
+            High_Goal: High Goal
+            Mid_Goal: Mid Goal
+            Intake_Position: Intake Position
+            
+            Home_Position --> High_Goal: Y Button
+            Home_Position --> Mid_Goal: B Button
+            Home_Position --> Intake_Position: X Button
+            
+            High_Goal --> Home_Position: A Button
+            Mid_Goal --> Home_Position: A Button
+            Intake_Position --> Home_Position: A Button
 
             state "Climb Mode" as Climb
-            Home --> Climb: D-Pad Down
-            Climb --> Home: Back Button
+            Home_Position --> Climb: D-Pad Down
+            Climb --> Home_Position: Back Button
         ```
 
-* **`Climber.java`**
+* **[`Climber.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Climber.java)**
     * **Purpose:** Manages the two climbing jack CR servos. This subsystem operates on a simple timed, "fire-and-forget" logic. When a D-Pad button is pressed, it sets a boolean flag and a timer. The `.run()` method checks this flag and runs the servos at full power for a hardcoded duration (8.4 seconds) before automatically stopping. It does not use any sensor feedback.
 
 ### OpModes (Entry Points)
 
-* **`BlueTeleop.java` / `RedTeleop.java`**
+* **[`BlueTeleop.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/BlueTeleop.java) / [`RedTeleop.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/RedTeleop.java)**
     * **Purpose:** These are the primary entry points for the driver-controlled period. Their sole responsibility is to instantiate the main `Robot` class in the correct TeleOp configuration (`auto=false`) and then call the `robot.runRobot()` method in a continuous loop until the OpMode is stopped.
 
-* **`LeftAuto.java` / `RightAuto.java`**
+* **[`LeftAuto.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/LeftAuto.java) / [`RightAuto.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/RightAuto.java)**
     * **Purpose:** These are the pre-programmed autonomous routines. They instantiate Road Runner's `MecanumDrive` and a limited version of the `Robot` class (for arm access). They use the `ActionBuilder` to create a single, sequential list of commands that mix drivetrain movements with mechanism actions. The entire sequence is executed blockingly from start to finish.
 
 ### Drivetrain & Localization
 
-* **`MecanumDrive.java` (Road Runner)**
+* **[`MecanumDrive.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/MecanumDrive.java) (Road Runner)**
     * **Purpose:** This is the **Road Runner Autonomous Drivetrain**. It contains the kinematic model of the robot, motion profile constraints (max velocity/acceleration), and feedback controllers. During an autonomous path, its `FollowTrajectoryAction` loop constantly compares the robot's current position (from the `Localizer`) to the desired position on the pre-planned trajectory, calculates the necessary velocity to correct any error, and sends power commands to the motors.
     * **Data Flow:**
         ```mermaid
@@ -419,7 +424,7 @@ This is a breakdown of the key files in your project and their specific purpose.
             D --> E["Motor Powers"];
         ```
 
-* **`Drivetrain.java` (TeleOp)**
+* **[`Drivetrain.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drivetrain.java) (TeleOp)**
     * **Purpose:** This is the **TeleOp Drivetrain** used for manual control. Its primary feature is "field-relative" driving, where it uses the IMU's heading to transform the driver's joystick inputs so that "forward" on the stick always moves the robot away from the driver. It also includes a separate logic path for snap-to-angle turning, using a PID controller to automatically rotate the robot to a predefined angle.
     * **Logic Flow:**
         ```mermaid
@@ -435,7 +440,7 @@ This is a breakdown of the key files in your project and their specific purpose.
             H --> I["Set Motor Powers"];
         ```
 
-* **`ThreeDeadWheelLocalizer.java`**
+* **[`ThreeDeadWheelLocalizer.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/ThreeDeadWheelLocalizer.java)**
     * **Purpose:** The high-precision **position tracking** module for autonomous. It reads the raw encoder values from the three unpowered odometry wheels. Using kinematic equations based on the physical placement of the pods, it calculates the robot's change in X (forward), Y (strafe), and heading (rotation) since the last update. This change, called a `Twist`, is sent to `MecanumDrive` to update the robot's position estimate.
     * **Data Flow:**
         ```mermaid
@@ -444,8 +449,8 @@ This is a breakdown of the key files in your project and their specific purpose.
             B --> C["Output:<br>Twist2dDual (Δx, Δy, Δθ)"];
         ```
 
-* **`Localizer.java`**: A Java `interface` (contract) that ensures any localizer class (like `ThreeDeadWheelLocalizer`) provides an `update()` method, making it compatible with `MecanumDrive`.
-* **`Drawing.java`**: A small utility class used by Road Runner to draw the robot's pose on the FTC Dashboard field overlay for debugging.
+* **[`Localizer.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Localizer.java)**: A Java `interface` (contract) that ensures any localizer class (like [`ThreeDeadWheelLocalizer.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/ThreeDeadWheelLocalizer.java)) provides an `update()` method, making it compatible with `MecanumDrive`.
+* **[`Drawing.java`](https://github.com/robocoltsftc/intothedeep/blob/f32257e4e6475f6031163a37057c8b9928f58911/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drivetrain/Drawing.java)**: A small utility class used by Road Runner to draw the robot's pose on the FTC Dashboard field overlay for debugging.
 
 ## 8. External Libraries and Resources
 
